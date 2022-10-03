@@ -39,7 +39,7 @@
         // 函数名前空格
         "space-before-function-paren": [
             "error",
-            "always"
+            "never"
         ],
         // 块前空格
         "space-before-blocks": [

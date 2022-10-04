@@ -16,6 +16,7 @@
     "@vitest/ui": "^0.23.4",
     "eslint": "^8.24.0",
     "promises-aplus-tests": "^2.1.2",
+    "ts-node": "^10.9.1",
     "typescript": "^4.8.4",
     "vite": "^3.1.4",
     "vitest": "^0.23.4"

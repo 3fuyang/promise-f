@@ -1,7 +1,7 @@
 import { expect, test, describe } from 'vitest'
 import { PromiseF } from '../src'
 
-describe('PromiseF <constructor>', () => {
+describe('Promise/A+ compliances testing', () => {
   test('resolves like a promise', async () => {
     return new PromiseF<number>((resolve) => {
       setTimeout(() => {
@@ -40,20 +40,24 @@ describe('PromiseF <constructor>', () => {
     })
   })
 
-  test.todo('is not mutable - then returns a new promise', async () => {
-    const start = new PromiseF<number>((resolve) => resolve(20))
+  test('unwrap thenables', async () => {
+    const getThenbaleWithDepthN = (n: number) => {
+      if (n <= 0) {
+        return PromiseF.resolve(1)
+      }
 
-    /* return PromiseF.all([
-      start
-        .then((val) => {
-          expect(val).toBe(20)
-          return 30
-        })
-        .then((val) => {
-          expect(val).toBe(30)
-        }),
-      start
-        .then((val) => expect(val).toBe(20))
-    ]) */
+      return new PromiseF((resolve) => {
+        resolve(getThenbaleWithDepthN(--n))
+      })
+    }
+
+    const n = Math.ceil(Math.random() * 20) + 1
+
+    const p = getThenbaleWithDepthN(n)
+
+    console.log(`Unwrap a thenable with a depth of ${n}`)
+    return (p as PromiseF<number>).then((val) => {
+      expect(val).toBe(1)
+    })
   })
 })

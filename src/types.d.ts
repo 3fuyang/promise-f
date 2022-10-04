@@ -5,8 +5,6 @@ export enum States {
   REJECTED = 'rejected'
 }
 
-
-
 // The resolve method called in the executor
 type Resolve<T> = (value: T) => void
 // The reject method called in the executor
@@ -25,4 +23,13 @@ type OnRejectedHandler<U = any> = (reason: any) => U
 interface Handlers<T, U = any> {
   onResolved?: OnResolvedHandler<T, U>
   onRejected?: OnRejectedHandler<U>
+}
+
+// According to ECMAScript spec, as long as an object implements the then method,
+// no matter the detail about the implementation, this object is considered to implement the Thenable interface
+interface Thenable<T> {
+  then<U>(
+    onResolved?: OnResolvedHandler<T, U>,
+    onRejected?: OnRejectedHandler<U>
+  ): Thenable<U>
 }

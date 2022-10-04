@@ -1,7 +1,8 @@
 {
   "name": "promise-f",
   "author": "fwio",
-  "type": "module",
+  "type": "commonjs",
+  "main": "./src/index.ts",
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",

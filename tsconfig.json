@@ -10,11 +10,12 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
+    "module": "NodeNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "outDir": "./build"
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

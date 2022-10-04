@@ -1,31 +1,26 @@
 import { expect, test, describe } from 'vitest'
-import { PromiseF } from '../src/PromiseF'
+import { PromiseF } from '../src'
 
 describe('PromiseF <constructor>', () => {
-  test('resolves like a promise', () => {
+  test('resolves like a promise', async () => {
     return new PromiseF<number>((resolve) => {
       setTimeout(() => {
         resolve(1)
-      }, 50)
+      }, 500)
     }).then((val) => {
       expect(val).toBe(1)
     })
   })
 
-  test('is always asynchronous', () => {
-    const p = new PromiseF((resolve) => resolve(5))
-
-    expect((p as any).value).not.toBe(5)
+  test('resolves with the expected value', async () => {
+    return new PromiseF<number>((resolve) => {
+      resolve(30)
+    }).then((val) => {
+      expect(val).toBe(30)
+    })
   })
 
-  test('resolves with the expected value', () => {
-    return new PromiseF<number>((resolve) => resolve(30))
-      .then((val) => {
-        expect(val).toBe(30)
-      })
-  })
-
-  test('catches errors (reject)', () => {
+  test('catches errors (reject)', async () => {
     const error = new Error('Surprise!')
 
     return new PromiseF((resolve, reject) => {
@@ -35,7 +30,7 @@ describe('PromiseF <constructor>', () => {
     })
   })
 
-  test('catches errors (throw)', () => {
+  test('catches errors (throw)', async () => {
     const error = new Error('Last Surprise!')
 
     return new PromiseF(() => {
@@ -45,10 +40,10 @@ describe('PromiseF <constructor>', () => {
     })
   })
 
-  test.skip('is not mutable - then returns a new promise', () => {
+  test.todo('is not mutable - then returns a new promise', async () => {
     const start = new PromiseF<number>((resolve) => resolve(20))
 
-    return PromiseF.all([
+    /* return PromiseF.all([
       start
         .then((val) => {
           expect(val).toBe(20)
@@ -59,6 +54,6 @@ describe('PromiseF <constructor>', () => {
         }),
       start
         .then((val) => expect(val).toBe(20))
-    ])
+    ]) */
   })
 })

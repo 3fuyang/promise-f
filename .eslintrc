@@ -39,7 +39,11 @@
         // 函数名前空格
         "space-before-function-paren": [
             "error",
-            "never"
+            {
+                "named": "never",
+                "anonymous": "always",
+                "asyncArrow": "always"
+            }
         ],
         // 块前空格
         "space-before-blocks": [

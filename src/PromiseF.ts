@@ -44,18 +44,20 @@ export class PromiseF<T> {
 
     if (this.state === States.RESOLVED) {
       this.handlers.forEach(({ onResolved }) => {
-        onResolved && onResolved(this.value!)
+        onResolved && queueMicrotask(() => onResolved(this.value!))
       })
     } else if (this.state === States.REJECTED) {
       this.handlers.forEach(({ onRejected }) => {
-        onRejected && onRejected(this.value!)
+        onRejected && queueMicrotask(() => onRejected(this.value!))
       })
     }
   }
 
+  // then: refer to the Promise Resolution Procedure (PRP)
   public then<U>(onResolved?: OnResolvedHandler<T, U>, onRejected?: OnRejectedHandler<U>) {
 
     return new PromiseF<U | T>((resolve, reject) => {
+      // wrap the handlers according to the PRP
       this.attachHandlers({
         onResolved: (result) => {
           if (typeof onResolved !== 'function') {
@@ -84,6 +86,7 @@ export class PromiseF<T> {
     })
   }
 
+  // catch() is just an alias of the onRejected in then()
   public catch(onRejected: OnRejectedHandler) {
     return this.then(undefined, onRejected)
   }

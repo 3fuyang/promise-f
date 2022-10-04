@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "aplus": "ts-node ./tests/a-plus-test.ts"
   },
   "devDependencies": {
     "@types/node": "^18.8.1",
@@ -14,6 +15,7 @@
     "@typescript-eslint/parser": "^5.38.1",
     "@vitest/ui": "^0.23.4",
     "eslint": "^8.24.0",
+    "promises-aplus-tests": "^2.1.2",
     "typescript": "^4.8.4",
     "vite": "^3.1.4",
     "vitest": "^0.23.4"

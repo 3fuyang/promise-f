@@ -8,14 +8,31 @@ export class PromiseF<T> {
   private handlers: Handlers<T, any>[] = []
 
   private setResult = (value: any, state: States) => {
-    console.log(`Calling setResult(${value}, ${state})...`)
+    process.env.VITEST && console.log(`Calling setResult(${value}, ${state})...`)
     if (this.state !== States.PENDING) {
       process.env.VITEST && console.log('  Promise is already settled, return!')
       return
     }
 
-    // if the returned value from onResolved or onRejected handlers is thenable
-    // we need to handle it recursively to ensure it's settled
+    // promise returned by then() === value returned by onResolved or onRejected
+    // reject the returned promise with TypeError
+    if (value === this) {
+      return this.reject(new TypeError())
+    }
+
+    // if the x is a promise, adopt its state and value
+    if (value instanceof PromiseF) {
+      return value.then(
+        (val) => {
+          this.resolve(val)
+        },
+        (err) => {
+          this.reject(err)
+        }
+      )
+    }
+
+    // if the x is a thenable but a promise
     if (isThenable(value)) {
       process.env.VITEST && console.log('  The resolved value is Thenable, call its then() method recursively!')
       return (value as Thenable<T>).then(this.resolve, this.reject)
@@ -62,7 +79,7 @@ export class PromiseF<T> {
     if (this.state === States.RESOLVED) {
       process.env.VITEST && console.log('  Queue all the onResolved handlers to microtask!')
       this.handlers.forEach(({ onResolved }) => {
-        console.log('    An onResolvedHandler is queued.')
+        process.env.VITEST && console.log('    An onResolvedHandler is queued.')
         onResolved && queueMicrotask(() => onResolved(this.value!))
       })
     } else if (this.state === States.REJECTED) {
@@ -81,7 +98,7 @@ export class PromiseF<T> {
   public then<U>(onResolved?: OnResolvedHandler<T, U>, onRejected?: OnRejectedHandler<U>) {
 
     process.env.VITEST && console.log('Calling then method...')
-    return new PromiseF<U | T>((resolve, reject) => {
+    const p = new PromiseF<U | T>((resolve, reject) => {
       // wrap the handlers according to the PRP
       this.attachHandlers({
         onResolved: (result) => {
@@ -111,6 +128,8 @@ export class PromiseF<T> {
       })
       process.env.VITEST && console.log('  Handlers registered.')
     })
+
+    return p
   }
 
   // catch() is just an alias of the onRejected in then()
@@ -118,7 +137,15 @@ export class PromiseF<T> {
     return this.then(undefined, onRejected)
   }
 
+  public finally<N>(onSettled: OnRejectedHandler & OnResolvedHandler<N>) {
+    return this.then(onSettled, onSettled)
+  }
+
   static resolve<R>(val: R) {
     return isThenable(val) ? val : new PromiseF((resolve) => resolve(val))
+  }
+
+  static reject<U>(reason: any) {
+    return new PromiseF<U>((resolve, reject) => reject(reason))
   }
 }

@@ -7,8 +7,8 @@ export class PromiseF<T> {
   private value?: T
   private handlers: Handlers<T, any>[] = []
 
-  private setResult = (value: any, state: States) => {
-    process.env.VITEST && console.log(`Calling setResult(${value}, ${state})...`)
+  private resolutionProcedure = (value: any, state: States) => {
+    process.env.VITEST && console.log(`Calling resolutionProcedure(${value}, ${state})...`)
     if (this.state !== States.PENDING) {
       process.env.VITEST && console.log('  Promise is already settled, return!')
       return
@@ -34,8 +34,22 @@ export class PromiseF<T> {
 
     // if the x is a thenable but a promise
     if (isThenable(value)) {
-      process.env.VITEST && console.log('  The resolved value is Thenable, call its then() method recursively!')
-      return (value as Thenable<T>).then(this.resolve, this.reject)
+      process.env.VITEST && console.log('  The returned value is Thenable, call its then() method, maybe recursively?')
+
+      // retrieve the property `x.then`
+      let then: (...args: any[]) => unknown
+      try {
+        then = value.then
+      } catch (e: any) {
+        return this.reject(e)
+      }
+
+      // call `x.then` with `x` as `this`, `resolvePromise` and `rejectPromise` as args
+      try {
+        return then.call(value, this.resolve, this.reject)
+      } catch (e: any) {
+        return this.reject(e)
+      }
     }
 
     this.state = state
@@ -46,11 +60,22 @@ export class PromiseF<T> {
   }
 
   private resolve: Resolve<T> = (value: T) => {
-    this.setResult(value, States.RESOLVED)
+    this.resolutionProcedure(value, States.RESOLVED)
   }
 
   private reject: Reject = (reason: any) => {
-    this.setResult(reason, States.REJECTED)
+    this.thenableReject(reason)
+  }
+
+  private thenableReject = (reason: any) => {
+    if (this.state !== States.PENDING) {
+      return
+    }
+
+    this.state = States.REJECTED
+    this.value = reason
+
+    this.executeHandlers()
   }
 
   public constructor(executor: Executor<T>) {

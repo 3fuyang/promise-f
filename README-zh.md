@@ -1,6 +1,6 @@
 # PromiseF
 
-[English](https://github.com/3fuyang/promise-f/blob/main/README-zh.md)
+[English](https://github.com/3fuyang/promise-f/)
 
 一个**试图兼容** Promise/A+ 规范的 Promise 实现。
 

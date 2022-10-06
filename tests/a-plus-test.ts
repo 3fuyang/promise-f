@@ -2,7 +2,6 @@
 /// <reference path="./a-plus-test.d.ts" />
 import promisesAplusTests, { type Adapter } from 'promises-aplus-tests'
 import { PromiseF } from '../src'
-import { writeFileSync } from 'fs'
 
 const adapter: Adapter = {
   resolved: PromiseF.resolve,

@@ -7,8 +7,8 @@ export class PromiseF<T> {
   private value?: T
   private handlers: Handlers<T, any>[] = []
 
-  private resolutionProcedure = (value: any, state: States) => {
-    process.env.VITEST && console.log(`Calling resolutionProcedure(${value}, ${state})...`)
+  private resolutionProcedure = (value: any) => {
+    process.env.VITEST && console.log(`Calling resolutionProcedure(${value})...`)
     if (this.state !== States.PENDING) {
       process.env.VITEST && console.log('  Promise is already settled, return!')
       return
@@ -52,7 +52,7 @@ export class PromiseF<T> {
       }
     }
 
-    this.state = state
+    this.state = States.RESOLVED
     this.value = value
     process.env.VITEST && console.log(`  Set the state to ${this.state} and the value to ${this.value}.`)
 
@@ -60,7 +60,7 @@ export class PromiseF<T> {
   }
 
   private resolve: Resolve<T> = (value: T) => {
-    this.resolutionProcedure(value, States.RESOLVED)
+    this.resolutionProcedure(value)
   }
 
   private reject: Reject = (reason: any) => {

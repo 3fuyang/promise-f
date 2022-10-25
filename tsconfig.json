@@ -17,7 +17,6 @@
     "noEmit": true,
     "outDir": "./build"
   },
-  "include": ["src"],
-  "exclude": ["./src/a-plus-test"],
+  "include": ["src", "tests/a-plus-test.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

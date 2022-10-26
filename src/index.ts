@@ -1,6 +1,6 @@
 import type { Executor, Resolve, Reject, OnResolvedHandler, OnRejectedHandler, Handlers, Thenable } from './types'
 import { States } from './types'
-import { isThenable } from './utils'
+import { isPossibleThenable } from './utils'
 
 export class PromiseF<T> {
   private state: States = States.PENDING
@@ -23,33 +23,28 @@ export class PromiseF<T> {
     // if the x is a promise, adopt its state and value
     if (value instanceof PromiseF) {
       return value.then(
-        (val) => {
-          this.resolve(val)
-        },
-        (err) => {
-          this.reject(err)
-        }
+        this.resolve,
+        this.reject
       )
     }
 
-    // if the x is a thenable but a promise
-    if (isThenable(value)) {
+    // if the x is an object or function
+    if (isPossibleThenable(value)) {
       process.env.VITEST && console.log('  The returned value is Thenable, call its then() method, maybe recursively?')
 
-      // retrieve the property `x.then`
       let then: (...args: any[]) => unknown
       try {
+        // retrieve the property `x.then`
         then = value.then
+
+        if (typeof then === 'function') {
+          // call `x.then` with `x` as `this`, `resolvePromise` and `rejectPromise` as args
+          return then.call(value, this.resolve, this.reject)
+        }
       } catch (e: any) {
         return this.reject(e)
       }
 
-      // call `x.then` with `x` as `this`, `resolvePromise` and `rejectPromise` as args
-      try {
-        return then.call(value, this.resolve, this.reject)
-      } catch (e: any) {
-        return this.reject(e)
-      }
     }
 
     this.state = States.RESOLVED

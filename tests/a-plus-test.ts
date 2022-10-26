@@ -4,7 +4,7 @@ import promisesAplusTests, { type Adapter } from 'promises-aplus-tests'
 import { PromiseF } from '../src'
 
 const adapter: Adapter = {
-  resolved: PromiseF.resolve,
+  resolved: PromiseF.resolve as any,
   // @ts-ignore
   rejected: PromiseF.reject,
   // @ts-ignore

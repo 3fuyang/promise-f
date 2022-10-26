@@ -6,9 +6,11 @@ A implementation of promise, **trying to be compliant** with [Promise/A+](https:
 
 ## Improving
 
-05/10/2022, it fails 190 tests.
+26/10/2022, it fails 188 tests.
 
 > History
+>
+> 05/10/2022, it fails 190 tests.
 >
 > 04/10/2022, it fails 251 tests.
 

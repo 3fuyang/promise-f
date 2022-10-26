@@ -167,7 +167,7 @@ export class PromiseF<T> {
   }
 
   static resolve<R>(val: R) {
-    return isThenable(val) ? val : new PromiseF((resolve) => resolve(val))
+    return val instanceof PromiseF ? val : new PromiseF((resolve) => resolve(val))
   }
 
   static reject<U>(reason: any) {

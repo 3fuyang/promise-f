@@ -2,7 +2,7 @@
 
 [中文文档](https://github.com/3fuyang/promise-f/blob/main/README-zh.md)
 
-A implementation of promise, **trying to be compliant** with [Promise/A+](https://promisesaplus.com/) specification.
+An implementation of promise, **trying to be compliant** with [Promise/A+](https://promisesaplus.com/) specification.
 
 ## Improving
 

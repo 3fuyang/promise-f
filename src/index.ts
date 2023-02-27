@@ -4,8 +4,7 @@ import type {
   Reject,
   OnResolvedHandler,
   OnRejectedHandler,
-  Handlers,
-  Thenable
+  Handlers
 } from './types'
 import { States } from './types'
 import { isPossibleThenable } from './utils'
@@ -16,6 +15,16 @@ export class PromiseF<T> {
   private value?: T
   /** Registered handlers. */
   private handlers: Handlers<T, any>[] = []
+
+  /** Hack the promise's state, used only under hood. */
+  public getState() {
+    return this.state
+  }
+
+  /** Hack the promise's value or reason, used only under hood. */
+  public getValue() {
+    return this.value
+  }
 
   /**
    * An abstract operation taking as input a promise and a value.
@@ -37,7 +46,14 @@ export class PromiseF<T> {
     }
 
     // if the x is a promise, adopt its state and value
+    /** TODO: Maybe this should be done synchornously? */
     if (value instanceof PromiseF) {
+      if (value.getState() === States.RESOLVED) {
+        return this.resolve(value.getValue())
+      }
+      if (value.getState() === States.REJECTED) {
+        return this.reject(value.getValue())
+      }
       return value.then(this.resolve, this.reject)
     }
 

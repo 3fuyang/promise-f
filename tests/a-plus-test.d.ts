@@ -19,8 +19,8 @@ declare module 'promises-aplus-tests' {
       rejected?: (reason: any) => Promise<never>
       deferred: <T>() => Deferred<T>
     }
-    export type Deferred<T = any> = {
-      promise: Promise<T>
+    export type Deferred<T = any, P = any> = {
+      promise: P<T>
       resolve: (value: T) => void
       reject: (reason: any) => void
     }

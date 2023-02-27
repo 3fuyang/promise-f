@@ -1,71 +1,66 @@
 {
-    "env": {
-        "browser": true,
-        "es2021": true
-    },
-    "extends": [
-        "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
+    // 无尾空格
+    "no-trailing-spaces": "error",
+    // 关键词前后空格
+    "keyword-spacing": [
+      "error",
+      {
+        "before": true,
+        "after": true
+      }
     ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-        "ecmaVersion": "latest",
-        "sourceType": "module"
-    },
-    "plugins": [
-        "@typescript-eslint"
+    // 行内对象花括号首尾空格
+    "object-curly-spacing": ["error", "always"],
+    // 行内数组方括号首尾空格
+    "array-bracket-spacing": ["error", "never"],
+    // 函数名前空格
+    "space-before-function-paren": [
+      "error",
+      {
+        "named": "never",
+        "anonymous": "always",
+        "asyncArrow": "always"
+      }
     ],
-    "rules": {
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/triple-slash-reference": "off",
-      // 无尾空格
-      "no-trailing-spaces": "error",
-      // 关键词前后空格
-      "keyword-spacing": [
-        "error",
-        {
-          "before": true,
-          "after": true
-        }
-      ],
-      // 行内对象花括号首尾空格
-      "object-curly-spacing": ["error", "always"],
-      // 行内数组方括号首尾空格
-      "array-bracket-spacing": ["error", "never"],
-      // 函数名前空格
-      "space-before-function-paren": [
-        "error",
-        {
-          "named": "never",
-          "anonymous": "always",
-          "asyncArrow": "always"
-        }
-      ],
-      // 块前空格
-      "space-before-blocks": ["error", "always"],
-      // 二元操作符前后空格
-      "space-infix-ops": "error",
-      // 对象键后空格
-      "key-spacing": "error",
-      // 无尾逗号
-      "comma-dangle": ["error", "never"],
-      // 逗号后空格
-      "comma-spacing": [
-        "error",
-        {
-          "after": true,
-          "before": false
-        }
-      ],
-      // 2 空格缩进
-      "indent": ["error", 2],
-      // CRLF
-      "linebreak-style": ["error", "windows"],
-      // only单引号
-      "quotes": ["error", "single"],
-      // 无分号
-      "semi": ["error", "never"],
-      // 允许混用tab和space
-      "no-mixed-spaces-and-tabs": "off"
-    }
+    // 块前空格
+    "space-before-blocks": ["error", "always"],
+    // 二元操作符前后空格
+    "space-infix-ops": "error",
+    // 对象键后空格
+    "key-spacing": "error",
+    // 无尾逗号
+    "comma-dangle": ["error", "never"],
+    // 逗号后空格
+    "comma-spacing": [
+      "error",
+      {
+        "after": true,
+        "before": false
+      }
+    ],
+    // 2 空格缩进
+    "indent": ["error", 2],
+    // CRLF
+    "linebreak-style": ["error", "windows"],
+    // only单引号
+    "quotes": ["error", "single"],
+    // 无分号
+    "semi": ["error", "never"],
+    // 允许混用tab和space
+    "no-mixed-spaces-and-tabs": "off"
+  }
 }

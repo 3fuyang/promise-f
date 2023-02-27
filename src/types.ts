@@ -4,7 +4,7 @@
 enum States {
   PENDING = 'pending',
   RESOLVED = 'resolved',
-  REJECTED = 'rejected'
+  REJECTED = 'rejected',
 }
 
 /**
@@ -51,5 +51,13 @@ interface Thenable<T> {
   ): Thenable<U>
 }
 
-export type { Resolve, Reject, Executor, OnResolvedHandler, OnRejectedHandler, Handlers, Thenable }
+export type {
+  Resolve,
+  Reject,
+  Executor,
+  OnResolvedHandler,
+  OnRejectedHandler,
+  Handlers,
+  Thenable
+}
 export { States }

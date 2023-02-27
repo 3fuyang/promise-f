@@ -1,4 +1,12 @@
-import type { Executor, Resolve, Reject, OnResolvedHandler, OnRejectedHandler, Handlers, Thenable } from './types'
+import type {
+  Executor,
+  Resolve,
+  Reject,
+  OnResolvedHandler,
+  OnRejectedHandler,
+  Handlers,
+  Thenable
+} from './types'
 import { States } from './types'
 import { isPossibleThenable } from './utils'
 
@@ -15,7 +23,8 @@ export class PromiseF<T> {
    * @see https://promisesaplus.com/#the-promise-resolution-procedure
    */
   private resolutionProcedure = (value: any) => {
-    process.env.VITEST && console.log(`Calling resolutionProcedure(${value})...`)
+    process.env.VITEST &&
+      console.log(`Calling resolutionProcedure(${value})...`)
     if (this.state !== States.PENDING) {
       process.env.VITEST && console.log('  Promise is already settled, return!')
       return
@@ -29,15 +38,15 @@ export class PromiseF<T> {
 
     // if the x is a promise, adopt its state and value
     if (value instanceof PromiseF) {
-      return value.then(
-        this.resolve,
-        this.reject
-      )
+      return value.then(this.resolve, this.reject)
     }
 
     // if the x is an object or function
     if (isPossibleThenable(value)) {
-      process.env.VITEST && console.log('  The returned value is Thenable, call its then() method, maybe recursively?')
+      process.env.VITEST &&
+        console.log(
+          '  The returned value is Thenable, call its then() method, maybe recursively?'
+        )
 
       let then: (...args: any[]) => unknown
       try {
@@ -51,12 +60,14 @@ export class PromiseF<T> {
       } catch (e: any) {
         return this.reject(e)
       }
-
     }
 
     this.state = States.RESOLVED
     this.value = value
-    process.env.VITEST && console.log(`  Set the state to ${this.state} and the value to ${this.value}.`)
+    process.env.VITEST &&
+      console.log(
+        `  Set the state to ${this.state} and the value to ${this.value}.`
+      )
 
     this.executeHandlers()
   }
@@ -104,20 +115,23 @@ export class PromiseF<T> {
     }
 
     if (this.state === States.RESOLVED) {
-      process.env.VITEST && console.log('  Queue all the onResolved handlers to microtask!')
+      process.env.VITEST &&
+        console.log('  Queue all the onResolved handlers to microtask!')
       this.handlers.forEach(({ onResolved }) => {
         process.env.VITEST && console.log('    An onResolvedHandler is queued.')
         onResolved && queueMicrotask(() => onResolved(this.value as T))
       })
     } else if (this.state === States.REJECTED) {
-      process.env.VITEST && console.log('  Queue all the onRejected handlers to microtask!')
+      process.env.VITEST &&
+        console.log('  Queue all the onRejected handlers to microtask!')
       this.handlers.forEach(({ onRejected }) => {
         process.env.VITEST && console.log('    An onRejectedHandler is queued.')
         onRejected && queueMicrotask(() => onRejected(this.value as any))
       })
     }
 
-    process.env.VITEST && console.log('  All handlers of this promise are queued.')
+    process.env.VITEST &&
+      console.log('  All handlers of this promise are queued.')
     // Clear the handlers.
     this.handlers.length = 0
   }
@@ -127,7 +141,10 @@ export class PromiseF<T> {
    * @param onResolved Invoked when the source promise fulfilled with the value.
    * @param onRejected Invoked when the source promise rejected with the reason.
    */
-  public then<U>(onResolved?: OnResolvedHandler<T, U>, onRejected?: OnRejectedHandler<U>) {
+  public then<U>(
+    onResolved?: OnResolvedHandler<T, U>,
+    onRejected?: OnRejectedHandler<U>
+  ) {
     process.env.VITEST && console.log('Calling then method...')
 
     const p = new PromiseF<U | T>((resolve, reject) => {
@@ -139,7 +156,7 @@ export class PromiseF<T> {
             return resolve(result)
           }
 
-          // if onResolved is a function, the status of the promise returned by then() is determined by the return value of the onResolved
+          // if `onResolved` is a function, the status of the promise returned by then() is determined by the return value of the onResolved
           try {
             return resolve(onResolved(result) as U)
           } catch (e) {
@@ -176,7 +193,9 @@ export class PromiseF<T> {
   }
 
   static resolve<R>(val: R) {
-    return val instanceof PromiseF ? val : new PromiseF((resolve) => resolve(val))
+    return val instanceof PromiseF
+      ? val
+      : new PromiseF((resolve) => resolve(val))
   }
 
   static reject<U>(reason: any) {

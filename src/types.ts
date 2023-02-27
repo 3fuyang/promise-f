@@ -1,32 +1,49 @@
-// Three states of a promise
+/**
+ * Three mutually exclusive states, `pending`, `resolved` and `rejected`.
+ */
 enum States {
   PENDING = 'pending',
   RESOLVED = 'resolved',
   REJECTED = 'rejected'
 }
 
-// The resolve method called in the executor
+/**
+ * The `resolve()` method passed to the executor.
+ */
 type Resolve<T> = (value: T) => void
-// The reject method called in the executor
+/**
+ * The `reject()` method passed to the executor.
+ */
 type Reject = (reason?: any) => void
 
-// Executor function passed to the constructor
+/**
+ * The executor passed to the `promise` constructor.
+ */
 type Executor<T> = (resolve: Resolve<T>, reject: Reject) => void
 
-// Resolve Handler passed to Then
+/**
+ * An on-resolved handler passed to `then()`.
+ */
 type OnResolvedHandler<T, U = any> = (value: T) => U | Thenable<U>
 
-// Rejected Handler passed to Then
+/**
+ * An on-rejected handler passed to `then()`.
+ */
 type OnRejectedHandler<U = any> = (reason: any) => U | Thenable<U>
 
-// Handlers passed to Then method
+/**
+ * Handlers registered via the `then()` method.
+ */
 interface Handlers<T, U = any> {
   onResolved?: OnResolvedHandler<T, U>
   onRejected?: OnRejectedHandler<U>
 }
 
-// According to ECMAScript spec, as long as an object implements the then method,
-// no matter the detail about the implementation, this object is considered to implement the Thenable interface
+/**
+ * According to [ECMAScript spec](), as long as an object implements the `then()` method,
+ * no matter the detail about the implementation,
+ * it is considered to implement the `Thenable` interface.
+ */
 interface Thenable<T> {
   then<U>(
     onResolved?: OnResolvedHandler<T, U>,

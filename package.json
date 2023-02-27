@@ -7,18 +7,18 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "aplus": "ts-node ./tests/a-plus-test.ts"
+    "aplus": "tsx ./tests/a-plus-test.ts"
   },
   "devDependencies": {
-    "@types/node": "^18.8.1",
-    "@typescript-eslint/eslint-plugin": "^5.38.1",
-    "@typescript-eslint/parser": "^5.38.1",
-    "@vitest/ui": "^0.23.4",
-    "eslint": "^8.24.0",
+    "@types/node": "^18.14.2",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "@vitest/ui": "^0.29.1",
+    "eslint": "^8.35.0",
     "promises-aplus-tests": "^2.1.2",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.8.4",
-    "vite": "^3.1.4",
-    "vitest": "^0.23.4"
+    "tsx": "^3.12.3",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4",
+    "vitest": "^0.29.1"
   }
 }

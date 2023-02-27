@@ -4,9 +4,16 @@ import { isPossibleThenable } from './utils'
 
 export class PromiseF<T> {
   private state: States = States.PENDING
+  /** The value or reason. */
   private value?: T
+  /** Registered handlers. */
   private handlers: Handlers<T, any>[] = []
 
+  /**
+   * An abstract operation taking as input a promise and a value.
+   * @param value The resolved value.
+   * @see https://promisesaplus.com/#the-promise-resolution-procedure
+   */
   private resolutionProcedure = (value: any) => {
     process.env.VITEST && console.log(`Calling resolutionProcedure(${value})...`)
     if (this.state !== States.PENDING) {

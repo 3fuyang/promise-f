@@ -107,28 +107,34 @@ export class PromiseF<T> {
       process.env.VITEST && console.log('  Queue all the onResolved handlers to microtask!')
       this.handlers.forEach(({ onResolved }) => {
         process.env.VITEST && console.log('    An onResolvedHandler is queued.')
-        onResolved && queueMicrotask(() => onResolved(this.value!))
+        onResolved && queueMicrotask(() => onResolved(this.value as T))
       })
     } else if (this.state === States.REJECTED) {
       process.env.VITEST && console.log('  Queue all the onRejected handlers to microtask!')
       this.handlers.forEach(({ onRejected }) => {
-        process.env.VITEST && console.log('    An onResolvedHandler is queued.')
-        onRejected && queueMicrotask(() => onRejected(this.value!))
+        process.env.VITEST && console.log('    An onRejectedHandler is queued.')
+        onRejected && queueMicrotask(() => onRejected(this.value as any))
       })
     }
 
-    process.env.VITEST && console.log('  All handlers executed.')
+    process.env.VITEST && console.log('  All handlers of this promise are queued.')
+    // Clear the handlers.
     this.handlers.length = 0
   }
 
-  // then: refer to the Promise Resolution Procedure (PRP)
+  /**
+   * Catch the deferred or asynchronous result.
+   * @param onResolved Invoked when the source promise fulfilled with the value.
+   * @param onRejected Invoked when the source promise rejected with the reason.
+   */
   public then<U>(onResolved?: OnResolvedHandler<T, U>, onRejected?: OnRejectedHandler<U>) {
-
     process.env.VITEST && console.log('Calling then method...')
+
     const p = new PromiseF<U | T>((resolve, reject) => {
       // wrap the handlers according to the PRP
       this.attachHandlers({
         onResolved: (result) => {
+          // If `onResolved` is not a function, it must be ignored.
           if (typeof onResolved !== 'function') {
             return resolve(result)
           }
@@ -141,12 +147,13 @@ export class PromiseF<T> {
           }
         },
         onRejected: (reason) => {
+          // If `onRejected` is not a function, it must be ignored.
           if (typeof onRejected !== 'function') {
             return reject(reason)
           }
 
           try {
-            // Notice we use resolve here for promise created by then method
+            // Notice we use resolve here for promise created by `then()`
             return resolve(onRejected(reason) as U)
           } catch (e) {
             return reject(e)
@@ -173,6 +180,6 @@ export class PromiseF<T> {
   }
 
   static reject<U>(reason: any) {
-    return new PromiseF<U>((resolve, reject) => reject(reason))
+    return new PromiseF<U>((_, reject) => reject(reason))
   }
 }

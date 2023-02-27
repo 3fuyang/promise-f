@@ -6,21 +6,23 @@ An implementation of promise, **trying to be compliant** with [Promise/A+](https
 
 ## Improving
 
-26/10/2022, it fails 60 tests.
+02/27/2023, it fails 44 tests.
 
 > History
 >
-> 26/10/2022, it fails 188 tests.
+> 10/26/2022, it fails 60 tests.
 >
-> 05/10/2022, it fails 190 tests.
+> 10/26/2022, it fails 188 tests.
 >
-> 04/10/2022, it fails 251 tests.
+> 10/05/2022, it fails 190 tests.
+>
+> 10/04/2022, it fails 251 tests.
 
 ## How To Run
 
-```powershell
-pnpm i
+```shell
+npm i
 
 # run Promise/A+ tests
-pnpm aplus
+npm aplus
 ```

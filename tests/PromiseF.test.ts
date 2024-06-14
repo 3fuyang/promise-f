@@ -1,8 +1,8 @@
-import { expect, test, describe } from 'vitest'
+import { expect, it, describe } from 'vitest'
 import { PromiseF } from '../src'
 
-describe('Promise/A+ compliances testing', () => {
-  test('resolves like a promise', async () => {
+describe.concurrent('Promise/A+ compliances testing', () => {
+  it('resolves like a promise', async () => {
     return new PromiseF<number>((resolve) => {
       setTimeout(() => {
         resolve(1)
@@ -12,7 +12,7 @@ describe('Promise/A+ compliances testing', () => {
     })
   })
 
-  test('resolves with the expected value', async () => {
+  it('resolves with the expected value', async () => {
     return new PromiseF<number>((resolve) => {
       resolve(30)
     }).then((val) => {
@@ -20,7 +20,7 @@ describe('Promise/A+ compliances testing', () => {
     })
   })
 
-  test('catches errors (reject)', async () => {
+  it('catches errors (reject)', async () => {
     const error = new Error('Surprise!')
 
     return new PromiseF((resolve, reject) => {
@@ -30,7 +30,7 @@ describe('Promise/A+ compliances testing', () => {
     })
   })
 
-  test('catches errors (throw)', async () => {
+  it('catches errors (throw)', async () => {
     const error = new Error('Last Surprise!')
 
     return new PromiseF(() => {
@@ -40,20 +40,20 @@ describe('Promise/A+ compliances testing', () => {
     })
   })
 
-  test('unwrap thenables', async () => {
-    const getThenbaleWithDepthN = (n: number) => {
+  it('unwrap thenable', async () => {
+    const getThenableWithDepthN = (n: number) => {
       if (n <= 0) {
         return PromiseF.resolve(1)
       }
 
       return new PromiseF((resolve) => {
-        resolve(getThenbaleWithDepthN(--n))
+        resolve(getThenableWithDepthN(--n))
       })
     }
 
     const n = Math.ceil(Math.random() * 20) + 1
 
-    const p = getThenbaleWithDepthN(n)
+    const p = getThenableWithDepthN(n)
 
     console.log(`Unwrap a thenable with a depth of ${n}`)
     return (p as PromiseF<number>).then((val) => {

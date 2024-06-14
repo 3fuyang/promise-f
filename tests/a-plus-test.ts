@@ -1,4 +1,3 @@
-/// <reference path="./a-plus-test.d.ts" />
 import promisesAplusTests, { type Adapter } from 'promises-aplus-tests'
 import { PromiseF } from '../src'
 
@@ -11,9 +10,9 @@ const adapter: Adapter = {
     return {
       promise: p,
       resolve,
-      reject
+      reject,
     }
-  }
+  },
 }
 
 promisesAplusTests(adapter, (err: any) => {

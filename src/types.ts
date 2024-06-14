@@ -1,53 +1,56 @@
 /**
- * Three mutually exclusive states, `pending`, `resolved` and `rejected`.
+ * Mutually exclusive states of promise - `pending`, `resolved` and `rejected`.
+ * Governs how a promise will react to incoming calls to its `then` method.
+ * @see https://tc39.es/ecma262/#sec-properties-of-the-promise-prototype-object
  */
-enum States {
+enum PromiseState {
   PENDING = 'pending',
   RESOLVED = 'resolved',
   REJECTED = 'rejected',
 }
 
 /**
- * The `resolve()` method passed to the executor.
+ * The `resolve` method passed to the executor.
  */
 type Resolve<T> = (value: T) => void
 /**
- * The `reject()` method passed to the executor.
+ * The `reject` method passed to the executor.
  */
-type Reject = (reason?: any) => void
+type Reject = (reason?: unknown) => void
 
 /**
- * The executor passed to the `promise` constructor.
+ * The executor used to initialize a promise.
  */
 type Executor<T> = (resolve: Resolve<T>, reject: Reject) => void
 
 /**
- * An on-resolved handler passed to `then()`.
+ * An `onResolved` handler passed to `then`.
  */
-type OnResolvedHandler<T, U = any> = (value: T) => U | Thenable<U>
+type OnResolvedHandler<T, U = unknown> = (value: T) => U | Thenable<U>
 
 /**
- * An on-rejected handler passed to `then()`.
+ * An `onRejected` handler passed to `then`.
  */
-type OnRejectedHandler<U = any> = (reason: any) => U | Thenable<U>
+type OnRejectedHandler<U = unknown> = (reason: unknown) => U | Thenable<U>
 
 /**
- * Handlers registered via the `then()` method.
+ * Handlers registered via calling `then()`.
  */
-interface Handlers<T, U = any> {
+interface Handlers<T, U = unknown> {
   onResolved?: OnResolvedHandler<T, U>
   onRejected?: OnRejectedHandler<U>
 }
 
 /**
- * According to [ECMAScript spec](), as long as an object implements the `then()` method,
+ * As long as an object implements `then()`,
  * no matter the detail about the implementation,
- * it is considered to implement the `Thenable` interface.
+ * the object is considered to implement the `Thenable` interface.
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#thenables
  */
 interface Thenable<T> {
   then<U>(
     onResolved?: OnResolvedHandler<T, U>,
-    onRejected?: OnRejectedHandler<U>
+    onRejected?: OnRejectedHandler<U>,
   ): Thenable<U>
 }
 
@@ -58,6 +61,7 @@ export type {
   OnResolvedHandler,
   OnRejectedHandler,
   Handlers,
-  Thenable
+  Thenable,
 }
-export { States }
+
+export { PromiseState }

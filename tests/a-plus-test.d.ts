@@ -3,12 +3,12 @@ declare module 'promises-aplus-tests' {
 
   function promisesAPlusTests(
     implementation: promisesAPlusTests.Adapter<any>,
-    callback: promisesAPlusTests.Callback
+    callback: promisesAPlusTests.Callback,
   ): void
   function promisesAPlusTests(
     implementation: promisesAPlusTests.Adapter<any>,
     mochaOptions: any,
-    callback: promisesAPlusTests.Callback
+    callback: promisesAPlusTests.Callback,
   ): void
 
   namespace promisesAPlusTests {

@@ -1,29 +1,42 @@
 import type {
   Executor,
-  Resolve,
-  Reject,
-  OnResolvedHandler,
+  Handlers,
   OnRejectedHandler,
-  Handlers
+  OnResolvedHandler,
+  Reject,
+  Resolve,
+  Thenable,
 } from './types'
-import { States } from './types'
+import { PromiseState } from './types'
 import { isPossibleThenable } from './utils'
 
+/**
+ * A promise implementation following the [Promises/A+ spec](https://promisesaplus.com/).
+ * @template T The type of the resolved value.
+ */
 export class PromiseF<T> {
-  private state: States = States.PENDING
-  /** The value or reason. */
+  /** The intrinsic state of the promise. */
+  private state: PromiseState = PromiseState.PENDING
+  /** Stores value when resolved. */
   private value?: T
+  /** Stores reason when rejected. */
+  private reason?: unknown
   /** Registered handlers. */
-  private handlers: Handlers<T, any>[] = []
+  private handlers: Handlers<T, unknown>[] = []
 
   /** Hack the promise's state, used only under hood. */
   public getState() {
     return this.state
   }
 
-  /** Hack the promise's value or reason, used only under hood. */
+  /** Hack the promise's value, used only under hood. */
   public getValue() {
     return this.value
+  }
+
+  /** Hack the promise's reason, used only under hood. */
+  public getReason() {
+    return this.reason
   }
 
   /**
@@ -31,58 +44,65 @@ export class PromiseF<T> {
    * @param value The resolved value.
    * @see https://promisesaplus.com/#the-promise-resolution-procedure
    */
-  private resolutionProcedure = (value: any) => {
+  private resolutionProcedure = (value: T | Thenable<T>) => {
     process.env.VITEST &&
       console.log(`Calling resolutionProcedure(${value})...`)
-    if (this.state !== States.PENDING) {
+    if (this.state !== PromiseState.PENDING) {
       process.env.VITEST && console.log('  Promise is already settled, return!')
       return
     }
 
-    // promise returned by then() === value returned by onResolved or onRejected
-    // reject the returned promise with TypeError
+    /**
+     * If the derived promise and the value returned by `onResolved` or `onRejected`
+     * refer to the same object,
+     * reject the derived promise with a `TypeError`.
+     * @see https://promisesaplus.com/#point-48
+     */
     if (value === this) {
       return this.reject(new TypeError())
     }
 
-    // if the x is a promise, adopt its state and value
-    /** TODO: Maybe this should be done synchornously? */
+    /**
+     * If `x` is a promise, adopt its state and value.
+     * @see https://promisesaplus.com/#point-49
+     */
+    /** TODO: Must be `PromiseF` or just thenable? */
+    /** TODO: Maybe this should be performed synchronously? */
     if (value instanceof PromiseF) {
-      if (value.getState() === States.RESOLVED) {
+      if (value.getState() === PromiseState.RESOLVED) {
         return this.resolve(value.getValue())
       }
-      if (value.getState() === States.REJECTED) {
-        return this.reject(value.getValue())
+      if (value.getState() === PromiseState.REJECTED) {
+        return this.reject(value.getReason())
       }
       return value.then(this.resolve, this.reject)
     }
 
-    // if the x is an object or function
+    // If `x` is an object or function
     if (isPossibleThenable(value)) {
       process.env.VITEST &&
         console.log(
-          '  The returned value is Thenable, call its then() method, maybe recursively?'
+          '  The returned value is Thenable, call its then() method, maybe recursively?',
         )
 
-      let then: (...args: any[]) => unknown
       try {
-        // retrieve the property `x.then`
-        then = value.then
+        // Retrieve the property `x.then`
+        const then = (value as Record<string, unknown>).then
 
         if (typeof then === 'function') {
           // call `x.then` with `x` as `this`, `resolvePromise` and `rejectPromise` as args
           return then.call(value, this.resolve, this.reject)
         }
-      } catch (e: any) {
+      } catch (e) {
         return this.reject(e)
       }
     }
 
-    this.state = States.RESOLVED
-    this.value = value
+    this.state = PromiseState.RESOLVED
+    this.value = value as T
     process.env.VITEST &&
       console.log(
-        `  Set the state to ${this.state} and the value to ${this.value}.`
+        `  Set the state to ${this.state} and the value to ${this.value}.`,
       )
 
     this.executeHandlers()
@@ -92,26 +112,26 @@ export class PromiseF<T> {
     this.resolutionProcedure(value)
   }
 
-  private reject: Reject = (reason: any) => {
+  private reject: Reject = (reason: unknown) => {
     this.thenableReject(reason)
   }
 
-  private thenableReject = (reason: any) => {
-    if (this.state !== States.PENDING) {
+  private thenableReject = (reason: unknown) => {
+    if (this.state !== PromiseState.PENDING) {
       return
     }
 
-    this.state = States.REJECTED
-    this.value = reason
+    this.state = PromiseState.REJECTED
+    this.reason = reason
 
     this.executeHandlers()
   }
 
-  public constructor(executor: Executor<T>) {
-    // executed the executor synchronously
+  public constructor(executor?: Executor<T>) {
+    // Execute the `executor` synchronously
     try {
-      executor(this.resolve, this.reject)
-    } catch (e: any) {
+      executor?.(this.resolve, this.reject)
+    } catch (e) {
       this.reject(e)
     }
   }
@@ -125,24 +145,24 @@ export class PromiseF<T> {
   private executeHandlers = () => {
     process.env.VITEST && console.log('Calling executeHandlers...')
 
-    if (this.state === States.PENDING) {
+    if (this.state === PromiseState.PENDING) {
       process.env.VITEST && console.log('  Promise is still pending, return!')
       return
     }
 
-    if (this.state === States.RESOLVED) {
+    if (this.state === PromiseState.RESOLVED) {
       process.env.VITEST &&
         console.log('  Queue all the onResolved handlers to microtask!')
       this.handlers.forEach(({ onResolved }) => {
         process.env.VITEST && console.log('    An onResolvedHandler is queued.')
         onResolved && queueMicrotask(() => onResolved(this.value as T))
       })
-    } else if (this.state === States.REJECTED) {
+    } else if (this.state === PromiseState.REJECTED) {
       process.env.VITEST &&
         console.log('  Queue all the onRejected handlers to microtask!')
       this.handlers.forEach(({ onRejected }) => {
         process.env.VITEST && console.log('    An onRejectedHandler is queued.')
-        onRejected && queueMicrotask(() => onRejected(this.value as any))
+        onRejected && queueMicrotask(() => onRejected(this.reason))
       })
     }
 
@@ -159,7 +179,7 @@ export class PromiseF<T> {
    */
   public then<U>(
     onResolved?: OnResolvedHandler<T, U>,
-    onRejected?: OnRejectedHandler<U>
+    onRejected?: OnRejectedHandler<U>,
   ) {
     process.env.VITEST && console.log('Calling then method...')
 
@@ -186,12 +206,12 @@ export class PromiseF<T> {
           }
 
           try {
-            // Notice we use resolve here for promise created by `then()`
+            // Notice we use `resolve` here for promise created by `then`
             return resolve(onRejected(reason) as U)
           } catch (e) {
             return reject(e)
           }
-        }
+        },
       })
       process.env.VITEST && console.log('  Handlers registered.')
     })
@@ -214,7 +234,7 @@ export class PromiseF<T> {
       : new PromiseF((resolve) => resolve(val))
   }
 
-  static reject<U>(reason: any) {
+  static reject<U>(reason: unknown) {
     return new PromiseF<U>((_, reject) => reject(reason))
   }
 }

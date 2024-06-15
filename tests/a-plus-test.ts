@@ -5,16 +5,16 @@ const adapter: Adapter = {
   resolved: PromiseF.resolve as any,
   rejected: PromiseF.reject as any,
   deferred: () => {
-    const p = new PromiseF(() => null)
-    const { resolve, reject } = p as any
+    const { promise, resolve, reject } = PromiseF.withResolvers()
+
     return {
-      promise: p,
+      promise,
       resolve,
       reject,
     }
   },
 }
 
-promisesAplusTests(adapter, (err: any) => {
+promisesAplusTests(adapter, (err) => {
   console.log('\n', err)
 })

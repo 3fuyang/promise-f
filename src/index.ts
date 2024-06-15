@@ -237,4 +237,24 @@ export class PromiseF<T> {
   static reject<U>(reason: unknown) {
     return new PromiseF<U>((_, reject) => reject(reason))
   }
+
+  /**
+   * Helper method to create a deferred promise.
+   * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers
+   */
+  static withResolvers<T>() {
+    let resolve: Resolve<T>
+    let reject: Reject
+
+    const promise = new PromiseF<T>((res, rej) => {
+      resolve = res
+      reject = rej
+    })
+
+    return {
+      promise,
+      resolve: resolve!,
+      reject: reject!,
+    }
+  }
 }

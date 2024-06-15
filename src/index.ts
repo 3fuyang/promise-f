@@ -107,20 +107,37 @@ export class PromiseF<T> {
        * @see https://promisesaplus.com/#point-56
        */
       if (typeof then === 'function') {
+        let called = false
+
         try {
           /**
            * 2.3.3.3.1 If/when `resolvePromise` is called with a value `y`, run `[[Resolve]](promise, y)`.
            * @see https://promisesaplus.com/#point-57
            */
-          const resolvePromise = (y: T) => this.resolutionProcedure(y)
+          const resolvePromise = (y: T) => {
+            if (called) {
+              return
+            }
+            called = true
+            this.resolutionProcedure(y)
+          }
           /**
            * 2.3.3.3.2 If/when `rejectPromise` is called with a reason `r`, reject `promise` with `r`.
            * @see https://promisesaplus.com/#point-58
            */
-          const rejectPromise = (r: unknown) => this.reject(r)
+          const rejectPromise = (r: unknown) => {
+            if (called) {
+              return
+            }
+            called = true
+            this.reject(r)
+          }
 
           return then.call(x, resolvePromise, rejectPromise)
         } catch (e) {
+          if (called) {
+            return
+          }
           return this.reject(e)
         }
       }
